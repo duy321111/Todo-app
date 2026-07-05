@@ -1,5 +1,32 @@
-*
-!.gitignore
-!/postman/
-!/postman/collections/
-!/postman/collections/**
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables (keep .env.example instead)
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Postman (exclude environments and globals, keep collections)
+/postman/environments/
+/postman/globals/
+/postman/flows/
+/postman/mocks/
+/postman/specs/
+
+# Build
+dist/
+build/
