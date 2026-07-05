@@ -1,0 +1,158 @@
+.todo-search-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: var(--radius-md, 12px);
+  box-shadow: var(--shadow);
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--muted, #9ca3af);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 40px 10px 38px;
+  font-size: 0.9rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--muted, #9ca3af);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.clear-search-btn:hover {
+  background: var(--border);
+  color: var(--text-h);
+}
+
+.filter-sort-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.status-tabs {
+  display: flex;
+  background: var(--social-bg, #f4f3ec);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.status-tab {
+  background: none;
+  border: none;
+  padding: 6px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status-tab:hover {
+  color: var(--text-h);
+}
+
+.status-tab.active {
+  background: var(--bg);
+  color: var(--accent);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.sort-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted, #6b6375);
+}
+
+.sort-dropdown {
+  padding: 6px 12px;
+  font-size: 0.88rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sort-dropdown:focus {
+  border-color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .todo-search-filter {
+    padding: 12px;
+  }
+  
+  .filter-sort-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .status-tabs {
+    justify-content: space-between;
+  }
+
+  .status-tab {
+    flex: 1;
+    text-align: center;
+  }
+
+  .sort-selector {
+    justify-content: space-between;
+  }
+  
+  .sort-dropdown {
+    flex: 1;
+    max-width: 180px;
+  }
+}

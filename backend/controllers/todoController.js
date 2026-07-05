@@ -3,7 +3,7 @@ import Todo from "../models/Todo.js";
 const getTodos = async (req, res) => {
     try {
         // Lấy query parameters
-        const { completed, search } = req.query;
+        const { completed, search, sortBy = 'createdAt', order = 'desc', page = 1, limit = 5 } = req.query;
         
         // Xây dựng filter object
         let filter = {};
@@ -20,9 +20,33 @@ const getTodos = async (req, res) => {
                 { description: { $regex: search, $options: 'i' } }
             ];
         }
-        
-        const todos = await Todo.find(filter);
-        res.status(200).json(todos);
+
+        // Chuyển đổi các giá trị phân trang thông thường
+        const pageNum = Math.max(1, parseInt(page, 10) || 1);
+        const limitNum = Math.max(1, parseInt(limit, 10) || 5);
+        const skip = (pageNum - 1) * limitNum;
+
+        // Xây dựng sort object
+        const sortOrder = order === 'asc' ? 1 : -1;
+        const sort = { [sortBy]: sortOrder };
+
+        // Đếm tổng số bản ghi khớp bộ lọc
+        const totalTodos = await Todo.countDocuments(filter);
+
+        // Lấy danh sách đã phân trang và sắp xếp
+        const todos = await Todo.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limitNum);
+
+        const totalPages = Math.ceil(totalTodos / limitNum) || 1;
+
+        res.status(200).json({
+            todos,
+            totalPages,
+            currentPage: pageNum,
+            totalTodos
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
