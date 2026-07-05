@@ -1,8 +1,27 @@
 import Todo from "../models/Todo.js";
 
 const getTodos = async (req, res) => {
-    try{
-        const todos = await Todo.find();
+    try {
+        // Lấy query parameters
+        const { completed, search } = req.query;
+        
+        // Xây dựng filter object
+        let filter = {};
+        
+        // Lọc theo trạng thái completed
+        if (completed !== undefined) {
+            filter.completed = completed === 'true';
+        }
+        
+        // Tìm kiếm theo title hoặc description
+        if (search) {
+            filter.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        const todos = await Todo.find(filter);
         res.status(200).json(todos);
     } catch (error) {
         res.status(500).json({ message: error.message });
