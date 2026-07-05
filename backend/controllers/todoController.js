@@ -31,18 +31,37 @@ const updateTodo = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, description, completed } = req.body;
-        if (!title || !title.trim()) {
+
+        // Chỉ kiểm tra title nếu người dùng có gửi title
+        if (title !== undefined && !title.trim()) {
             return res.status(400).json({
                 message: "Title is required"
             });
         }
 
-        const todo = await Todo.findByIdAndUpdate(id, { title, description, completed }, { new: true,runValidators: true });
+        const todo = await Todo.findByIdAndUpdate(
+            id,
+            { title, description, completed },
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        if (!todo) {
+            return res.status(404).json({
+                message: "Todo not found"
+            });
+        }
+
         res.status(200).json(todo);
+
     } catch (error) {
-        res.status(400).json({ message: "Todo not found" });
+        res.status(500).json({
+            message: error.message
+        });
     }
-    };
+};
 
 const deleteTodo = async (req, res) => {
     try {
