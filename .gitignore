@@ -1,0 +1,5 @@
+*
+!.gitignore
+!/postman/
+!/postman/collections/
+!/postman/collections/**

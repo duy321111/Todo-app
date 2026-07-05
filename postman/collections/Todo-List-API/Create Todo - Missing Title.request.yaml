@@ -1,0 +1,27 @@
+$kind: http-request
+name: 'Create Todo - Missing Title'
+method: POST
+url: '{{baseUrl}}/api/todos'
+description: 'Attempt to create a todo without a title. Should return 400.'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "description": "No title provided"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 400 for missing title", function () {
+          pm.response.to.have.status(400);
+      });
+
+      pm.test("Response contains error message", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.have.property("message");
+      });

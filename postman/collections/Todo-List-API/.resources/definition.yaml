@@ -1,0 +1,3 @@
+$kind: collection
+name: Todo List API
+description: 'Tests for the Todo List REST API running on {{baseUrl}}'

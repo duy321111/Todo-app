@@ -1,0 +1,40 @@
+$kind: http-request
+name: Get All Todos
+method: GET
+url: '{{baseUrl}}/api/todos'
+description: 'Retrieve all todo items from the database.'
+order: 1000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is an array", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.be.an("array");
+      });
+
+      pm.test("Response time is under 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      pm.test("Each todo has required fields", function () {
+          const body = pm.response.json();
+          if (body.length > 0) {
+              body.forEach(function(todo) {
+                  pm.expect(todo).to.have.property("_id");
+                  pm.expect(todo).to.have.property("title");
+                  pm.expect(todo).to.have.property("completed");
+                  pm.expect(todo).to.have.property("createdAt");
+              });
+          }
+      });
+
+      // Save first todo ID for use in other requests
+      const body = pm.response.json();
+      if (body.length > 0) {
+          pm.environment.set("todoId", body[0]._id);
+      }

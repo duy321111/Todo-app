@@ -1,0 +1,54 @@
+$kind: http-request
+name: 'Create Todo - Valid'
+method: POST
+url: '{{baseUrl}}/api/todos'
+description: 'Create a new todo with a valid title and description.'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "Buy groceries",
+      "description": "Milk, eggs, bread"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("Response has _id field", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.have.property("_id");
+      });
+
+      pm.test("Title matches request", function () {
+          const body = pm.response.json();
+          pm.expect(body.title).to.eql("Buy groceries");
+      });
+
+      pm.test("Description matches request", function () {
+          const body = pm.response.json();
+          pm.expect(body.description).to.eql("Milk, eggs, bread");
+      });
+
+      pm.test("Completed defaults to false", function () {
+          const body = pm.response.json();
+          pm.expect(body.completed).to.eql(false);
+      });
+
+      pm.test("createdAt is present", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.have.property("createdAt");
+      });
+
+      // Save the new todo ID
+      const body = pm.response.json();
+      if (body._id) {
+          pm.environment.set("todoId", body._id);
+      }

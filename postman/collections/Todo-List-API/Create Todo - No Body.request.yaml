@@ -1,0 +1,16 @@
+$kind: http-request
+name: 'Create Todo - No Body'
+method: POST
+url: '{{baseUrl}}/api/todos'
+description: 'Attempt to create a todo with no request body. Should return 400.'
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 400 for no body", function () {
+          pm.response.to.have.status(400);
+      });

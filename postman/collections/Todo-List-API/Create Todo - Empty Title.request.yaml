@@ -1,0 +1,28 @@
+$kind: http-request
+name: 'Create Todo - Empty Title'
+method: POST
+url: '{{baseUrl}}/api/todos'
+description: 'Attempt to create a todo with an empty title string. Should return 400.'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "",
+      "description": "Empty title test"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 400 for empty title", function () {
+          pm.response.to.have.status(400);
+      });
+
+      pm.test("Response contains error message", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.have.property("message");
+      });

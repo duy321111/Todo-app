@@ -1,0 +1,28 @@
+$kind: http-request
+name: 'Create Todo - Title Too Long'
+method: POST
+url: '{{baseUrl}}/api/todos'
+description: 'Attempt to create a todo with a title exceeding 100 characters. Should return 400.'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "description": "Title is 101 chars"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 400 for title exceeding maxlength", function () {
+          pm.response.to.have.status(400);
+      });
+
+      pm.test("Response contains error message", function () {
+          const body = pm.response.json();
+          pm.expect(body).to.have.property("message");
+      });
