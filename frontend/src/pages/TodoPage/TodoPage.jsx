@@ -174,29 +174,15 @@ function TodoPage() {
   const handleDelete = async (id) => {
     if (updatingIds.includes(id)) return;
 
-    const backupTodo = todos.find((t) => t._id === id);
-    const backupIndex = todos.findIndex((t) => t._id === id);
-
-    // Khóa tác vụ cho todo này
+    // Khóa tác vụ cho todo này (hệ thống sẽ tự động mờ dòng này đi và chặn click)
     setUpdatingIds((prev) => [...prev, id]);
-
-    // Xóa khỏi giao diện ngay lập tức (Optimistic Update)
-    setTodos((prevTodos) => prevTodos.filter((t) => t._id !== id));
 
     try {
       await api.delete(`/todos/${id}`);
 
-      // Fetch lại để cập nhật danh sách và phân trang
+      // Fetch lại để cập nhật danh sách và phân trang mới một cách mượt mà
       await fetchTodos();
     } catch (err) {
-      // Hoàn tác (rollback) nếu API gặp lỗi
-      if (backupTodo) {
-        setTodos((prevTodos) => {
-          const list = [...prevTodos];
-          list.splice(backupIndex, 0, backupTodo);
-          return list;
-        });
-      }
       setError('Không thể xóa công việc.');
       console.error(err);
     } finally {
@@ -267,12 +253,12 @@ function TodoPage() {
               {(statusFilter !== 'all' || search.trim()) && (
                 <div className="active-filters-badges">
                   <span className="filters-label">Đang lọc:</span>
-                  
+
                   {statusFilter !== 'all' && (
                     <span className="filter-badge">
                       <span>{statusFilter === 'active' ? 'Chưa xong' : 'Đã xong'}</span>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="remove-badge-btn"
                         onClick={() => setStatusFilter('all')}
                         title="Xóa bộ lọc trạng thái"
@@ -281,12 +267,12 @@ function TodoPage() {
                       </button>
                     </span>
                   )}
-                  
+
                   {search.trim() && (
                     <span className="filter-badge">
                       <span>Từ khóa: "{search}"</span>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="remove-badge-btn"
                         onClick={() => setSearch('')}
                         title="Xóa bộ lọc tìm kiếm"
@@ -297,8 +283,8 @@ function TodoPage() {
                   )}
 
                   {statusFilter !== 'all' && search.trim() && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="clear-all-badges-btn"
                       onClick={() => {
                         setStatusFilter('all');
@@ -446,10 +432,10 @@ function TodoPage() {
             Created with ❤️ by <span className="todo-footer__name">Duy</span>
           </p>
           <div className="todo-footer__links">
-            <a 
-              href="mailto:duy321111@gmail.com" 
-              className="todo-footer__link" 
-              target="_blank" 
+            <a
+              href="mailto:duy321111@gmail.com"
+              className="todo-footer__link"
+              target="_blank"
               rel="noopener noreferrer"
               title="Email me"
             >
@@ -457,10 +443,10 @@ function TodoPage() {
               duy321111@gmail.com
             </a>
             <span className="todo-footer__divider">|</span>
-            <a 
-              href="https://github.com/duy321111" 
-              className="todo-footer__link" 
-              target="_blank" 
+            <a
+              href="https://github.com/duy321111"
+              className="todo-footer__link"
+              target="_blank"
               rel="noopener noreferrer"
               title="GitHub Profile"
             >
