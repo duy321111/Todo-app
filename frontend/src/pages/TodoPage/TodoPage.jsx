@@ -21,8 +21,8 @@ function TodoPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalTodos, setTotalTodos] = useState(0);
   // States cho việc thu gọn bộ điều khiển độc lập
-  const [isFormExpanded, setIsFormExpanded] = useState(true);
-  const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
+  const [isFormExpanded, setIsFormExpanded] = useState(false);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 
   const fetchTodos = useCallback(async (showLoading = false) => {
     try {
