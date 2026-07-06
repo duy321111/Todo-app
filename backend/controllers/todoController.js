@@ -86,7 +86,7 @@ const updateTodo = async (req, res) => {
             id,
             { title, description, completed },
             {
-                new: true,
+                returnDocument: 'after',
                 runValidators: true
             }
         );

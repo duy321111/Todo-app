@@ -17,7 +17,7 @@
 
 .todo-list-header {
   display: grid;
-  grid-template-columns: 1fr 96px 60px;
+  grid-template-columns: 1fr 96px 90px;
   gap: 12px;
   align-items: center;
   padding-bottom: 6px;
@@ -27,7 +27,7 @@
 .col-header {
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--muted);
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -42,4 +42,32 @@
 
 .col-header--actions {
   text-align: right;
+}
+
+.todo-list-items {
+  max-height: 380px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding-right: 8px; /* space for scroll bar */
+  margin-right: -8px; /* negate spacing to align with header right-border */
+}
+
+/* Custom premium scrollbar styling */
+.todo-list-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.todo-list-items::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.todo-list-items::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.todo-list-items::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent);
 }

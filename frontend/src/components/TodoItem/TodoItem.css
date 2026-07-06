@@ -1,6 +1,6 @@
 .todo-row {
   display: grid;
-  grid-template-columns: 1fr 96px 60px;
+  grid-template-columns: 1fr 96px 90px;
   gap: 12px;
   align-items: center;
   padding: 8px 0;
@@ -17,16 +17,31 @@
 
 .todo-text__title {
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text);
   word-break: break-word;
 }
 
 .todo-text__desc {
   font-size: 0.8rem;
+  font-weight: 500;
   color: var(--muted);
   line-height: 1.3;
   word-break: break-word;
+}
+
+.todo-text__time {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.time-icon {
+  color: #94a3b8;
 }
 
 .todo-row.completed .todo-text__title {
@@ -40,31 +55,27 @@
   opacity: 0.8;
 }
 
+.todo-row.completed .todo-text__time {
+  opacity: 0.7;
+}
+
 .todo-status-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  height: 24px;
-  width: 96px;
+  height: 28px;
+  width: 104px;
   cursor: pointer;
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1;
   background: #ffffff;
   color: #64748b;
   outline: none;
   transition: all 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
-}
-
-.status-default {
-  display: inline-block;
-}
-
-.status-hover {
-  display: none;
 }
 
 .todo-status-btn.completed {
@@ -77,21 +88,13 @@
   .todo-status-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
-    background: var(--accent-soft);
-  }
-
-  .todo-status-btn:hover .status-default {
-    display: none;
-  }
-
-  .todo-status-btn:hover .status-hover {
-    display: inline-block;
+    background: var(--accent-bg);
   }
 
   .todo-status-btn.completed:hover {
-    border-color: #ef4444;
-    background: #fef2f2;
-    color: #991b1b;
+    border-color: #059669;
+    background: #d1fae5;
+    color: #047857;
   }
 }
 
@@ -195,8 +198,14 @@
   color: #fff;
 }
 
-.edit-action-btn.save-btn:hover {
+.edit-action-btn.save-btn:hover:not(:disabled) {
   filter: brightness(1.05);
+}
+
+.edit-action-btn.save-btn:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .edit-action-btn.cancel-btn {

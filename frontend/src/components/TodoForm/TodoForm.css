@@ -49,7 +49,59 @@
   transition: all 0.2s ease;
 }
 
-.todo-form__button:hover {
+.todo-form__button:hover:not(:disabled) {
   filter: brightness(1.05);
   transform: translateY(-1px);
+}
+
+.todo-form__button:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.todo-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.todo-error-hint {
+  color: #ef4444;
+  font-size: 0.76rem;
+  font-weight: 500;
+  text-align: left;
+  padding-left: 4px;
+}
+
+.input-error {
+  border-color: #fca5a5 !important;
+  background-color: #fef2f2 !important;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.todo-input-helper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.todo-char-count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.todo-char-count.too-long {
+  color: #ef4444;
+  font-weight: 700;
 }

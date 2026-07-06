@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { api } from '../../services/api';
 import TodoForm from '../../components/TodoForm/TodoForm';
 import TodoList from '../../components/TodoList/TodoList';
-import SearchFilter from '../../components/SearchFilter';
+import SearchFilter from '../../components/SearchFilter/SearchFilter';
 import './TodoPage.css';
 
 function TodoPage() {
@@ -20,6 +20,9 @@ function TodoPage() {
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
   const [totalTodos, setTotalTodos] = useState(0);
+  // States cho việc thu gọn bộ điều khiển độc lập
+  const [isFormExpanded, setIsFormExpanded] = useState(true);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
 
   const fetchTodos = useCallback(async (showLoading = false) => {
     try {
@@ -95,11 +98,11 @@ function TodoPage() {
       await api.post('/todos', { title: trimmedTitle, description: description.trim() });
       setTitle('');
       setDescription('');
-      
+
       // Chuyển sang danh mục Chưa xong, trang 1 để xem được công việc mới lập tức
       setStatusFilter('active');
       setPage(1);
-      
+
       // Nếu trạng thái đã là active và page đã là 1 từ trước (không kích hoạt useEffect), ta fetch thủ công
       if (statusFilter === 'active' && page === 1) {
         await fetchTodos();
@@ -153,7 +156,7 @@ function TodoPage() {
 
     try {
       await api.delete(`/todos/${id}`);
-      
+
       // Fetch lại để cập nhật danh sách và phân trang
       await fetchTodos();
     } catch (err) {
@@ -170,6 +173,10 @@ function TodoPage() {
     }
   };
 
+  const isTitleTooLong = title.length > 100;
+  const isDescTooLong = description.length > 1000;
+  const isSubmitDisabled = isTitleTooLong || isDescTooLong || !title.trim();
+
   return (
     <main className="todo-page">
       <div className="todo-shell">
@@ -179,28 +186,132 @@ function TodoPage() {
               <p className="todo-kicker">
                 To-Do List
               </p>
-              <h1 className="todo-title">Danh sách công việc</h1>
-              <p className="todo-note">
-                Tổng số: {totalTodos} công việc phù hợp bộ lọc
-              </p>
             </div>
 
-            <TodoForm
-              title={title}
-              onTitleChange={setTitle}
-              description={description}
-              onDescriptionChange={setDescription}
-              onSubmit={handleAddTodo}
-            />
+            <div className="todo-collapse-toggle">
+              <button
+                type="button"
+                className="collapse-toggle-btn"
+                onClick={() => setIsFormExpanded(!isFormExpanded)}
+                aria-expanded={isFormExpanded}
+              >
+                <span>{isFormExpanded ? 'Ẩn Form Thêm' : 'Hiển thị Form Thêm'}</span>
+                <svg
+                  className={`collapse-arrow ${isFormExpanded ? 'expanded' : ''}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            </div>
 
-            <SearchFilter
-              search={search}
-              onSearchChange={handleSearchChange}
-              statusFilter={statusFilter}
-              onStatusFilterChange={handleStatusFilterChange}
-              sortOption={sortOption}
-              onSortOptionChange={handleSortOptionChange}
-            />
+            <div className={`todo-collapsible-controls ${isFormExpanded ? 'expanded' : 'collapsed'}`}>
+              <div className="todo-collapsible-content">
+                <TodoForm
+                  title={title}
+                  onTitleChange={setTitle}
+                  description={description}
+                  onDescriptionChange={setDescription}
+                  onSubmit={handleAddTodo}
+                  isSubmitDisabled={isSubmitDisabled}
+                  isTitleTooLong={isTitleTooLong}
+                  isDescTooLong={isDescTooLong}
+                />
+              </div>
+            </div>
+
+            <div className="todo-collapse-toggle">
+              {(statusFilter !== 'all' || search.trim()) && (
+                <div className="active-filters-badges">
+                  <span className="filters-label">Đang lọc:</span>
+                  
+                  {statusFilter !== 'all' && (
+                    <span className="filter-badge">
+                      <span>{statusFilter === 'active' ? 'Chưa xong' : 'Đã xong'}</span>
+                      <button 
+                        type="button" 
+                        className="remove-badge-btn"
+                        onClick={() => setStatusFilter('all')}
+                        title="Xóa bộ lọc trạng thái"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
+                    </span>
+                  )}
+                  
+                  {search.trim() && (
+                    <span className="filter-badge">
+                      <span>Từ khóa: "{search}"</span>
+                      <button 
+                        type="button" 
+                        className="remove-badge-btn"
+                        onClick={() => setSearch('')}
+                        title="Xóa bộ lọc tìm kiếm"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
+                    </span>
+                  )}
+
+                  {statusFilter !== 'all' && search.trim() && (
+                    <button 
+                      type="button" 
+                      className="clear-all-badges-btn"
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setSearch('');
+                      }}
+                    >
+                      Xóa tất cả
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <button
+                type="button"
+                className="collapse-toggle-btn"
+                onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+                aria-expanded={isFiltersExpanded}
+              >
+                <span>{isFiltersExpanded ? 'Ẩn Bộ Lọc & Tìm Kiếm' : 'Hiển thị Bộ Lọc & Tìm Kiếm'}</span>
+                <svg
+                  className={`collapse-arrow ${isFiltersExpanded ? 'expanded' : ''}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            </div>
+
+            <div className={`todo-collapsible-controls ${isFiltersExpanded ? 'expanded' : 'collapsed'}`}>
+              <div className="todo-collapsible-content">
+                <SearchFilter
+                  search={search}
+                  onSearchChange={handleSearchChange}
+                  statusFilter={statusFilter}
+                  onStatusFilterChange={handleStatusFilterChange}
+                  sortOption={sortOption}
+                  onSortOptionChange={handleSortOptionChange}
+                />
+              </div>
+            </div>
 
             {loading && (
               <div className="todo-state todo-state--loading">

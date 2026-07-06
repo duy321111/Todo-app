@@ -17,14 +17,16 @@ function TodoList({ todos, onUpdate, onDelete }) {
         <span className="col-header col-header--status">Trạng thái</span>
         <span className="col-header col-header--actions">Điều chỉnh</span>
       </div>
-      {todos.map((todo) => (
-        <TodoItem
-          key={todo._id}
-          todo={todo}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-        />
-      ))}
+      <div className="todo-list-items">
+        {todos.map((todo) => (
+          <TodoItem
+            key={todo._id}
+            todo={todo}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
     </div>
   );
 }
