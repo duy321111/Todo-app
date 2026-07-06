@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { api } from '../../services/api';
 import TodoForm from '../../components/TodoForm/TodoForm';
 import TodoList from '../../components/TodoList/TodoList';
@@ -26,7 +26,16 @@ function TodoPage() {
   // State quản lý việc khóa các tác vụ đang thực thi (chống spam click)
   const [updatingIds, setUpdatingIds] = useState([]);
 
+  // Refs để theo dõi các cuộc gọi API bất đồng bộ tránh Race Condition
+  const lastFetchId = useRef(0);
+  const updatingIdsRef = useRef(updatingIds);
+
+  useEffect(() => {
+    updatingIdsRef.current = updatingIds;
+  }, [updatingIds]);
+
   const fetchTodos = useCallback(async (showLoading = false) => {
+    const fetchId = ++lastFetchId.current;
     try {
       if (showLoading) {
         setLoading(true);
@@ -55,14 +64,30 @@ function TodoPage() {
         },
       });
 
-      setTodos(response.data.todos);
+      // Nếu có cuộc gọi fetch mới hơn đã được kích hoạt, bỏ qua kết quả của cuộc gọi cũ
+      if (fetchId !== lastFetchId.current) return;
+
+      // Trộn dữ liệu mới tải về với các phần tử đang được update ở giao diện (để tránh bị đè cũ)
+      setTodos((prevTodos) => {
+        const fetchedList = response.data.todos;
+        return fetchedList.map((fetchedItem) => {
+          const localItem = prevTodos.find((t) => t._id === fetchedItem._id);
+          // HỢP NHẤT TRẠNG THÁI: Giữ nguyên trạng thái client của các item đang cập nhật dở dang
+          if (localItem && updatingIdsRef.current.includes(fetchedItem._id)) {
+            return localItem;
+          }
+          return fetchedItem;
+        });
+      });
+
       setTotalPages(response.data.totalPages);
       setTotalTodos(response.data.totalTodos);
     } catch (err) {
+      if (fetchId !== lastFetchId.current) return;
       setError('Không thể tải danh sách công việc từ backend.');
       console.error(err);
     } finally {
-      if (showLoading) {
+      if (fetchId === lastFetchId.current && showLoading) {
         setLoading(false);
       }
     }
