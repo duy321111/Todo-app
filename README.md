@@ -134,6 +134,7 @@ docker-compose down
 ```
 
 ### Minh họa trạng thái hoạt động:
-![Docker Compose Running](./docker_running.png)
+![Docker Compose Running](docker_running.png)
+
 
 
