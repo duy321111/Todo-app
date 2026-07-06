@@ -23,6 +23,8 @@ function TodoPage() {
   // States cho việc thu gọn bộ điều khiển độc lập
   const [isFormExpanded, setIsFormExpanded] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  // State quản lý việc khóa các tác vụ đang thực thi (chống spam click)
+  const [updatingIds, setUpdatingIds] = useState([]);
 
   const fetchTodos = useCallback(async (showLoading = false) => {
     try {
@@ -99,14 +101,8 @@ function TodoPage() {
       setTitle('');
       setDescription('');
 
-      // Chuyển sang danh mục Chưa xong, trang 1 để xem được công việc mới lập tức
-      setStatusFilter('active');
-      setPage(1);
-
-      // Nếu trạng thái đã là active và page đã là 1 từ trước (không kích hoạt useEffect), ta fetch thủ công
-      if (statusFilter === 'active' && page === 1) {
-        await fetchTodos();
-      }
+      // Tải lại danh sách tương ứng với bộ lọc đang được chọn hiện tại
+      await fetchTodos();
     } catch (err) {
       setError('Không thể thêm công việc.');
       console.error(err);
@@ -114,9 +110,14 @@ function TodoPage() {
   };
 
   const handleUpdate = async (id, updatedFields) => {
+    if (updatingIds.includes(id)) return;
+
     const originalTodo = todos.find((t) => t._id === id);
     if (!originalTodo) return;
     const backupIndex = todos.findIndex((t) => t._id === id);
+
+    // Khóa tác vụ cho todo này
+    setUpdatingIds((prev) => [...prev, id]);
 
     // Cập nhật giao diện ngay lập tức (Optimistic Update)
     let isRemoved = false;
@@ -164,12 +165,20 @@ function TodoPage() {
       }
       setError('Không thể cập nhật công việc.');
       console.error(err);
+    } finally {
+      // Mở khóa sau khi hoàn tất
+      setUpdatingIds((prev) => prev.filter((uid) => uid !== id));
     }
   };
 
   const handleDelete = async (id) => {
+    if (updatingIds.includes(id)) return;
+
     const backupTodo = todos.find((t) => t._id === id);
     const backupIndex = todos.findIndex((t) => t._id === id);
+
+    // Khóa tác vụ cho todo này
+    setUpdatingIds((prev) => [...prev, id]);
 
     // Xóa khỏi giao diện ngay lập tức (Optimistic Update)
     setTodos((prevTodos) => prevTodos.filter((t) => t._id !== id));
@@ -190,12 +199,18 @@ function TodoPage() {
       }
       setError('Không thể xóa công việc.');
       console.error(err);
+    } finally {
+      // Mở khóa sau khi hoàn tất
+      setUpdatingIds((prev) => prev.filter((uid) => uid !== id));
     }
   };
 
   const isTitleTooLong = title.length > 100;
   const isDescTooLong = description.length > 1000;
   const isSubmitDisabled = isTitleTooLong || isDescTooLong || !title.trim();
+
+  const startTodoIndex = totalTodos > 0 ? (page - 1) * limit + 1 : 0;
+  const endTodoIndex = Math.min(page * limit, totalTodos);
 
   return (
     <main className="todo-page">
@@ -349,6 +364,9 @@ function TodoPage() {
                   todos={todos}
                   onUpdate={handleUpdate}
                   onDelete={handleDelete}
+                  updatingIds={updatingIds}
+                  page={page}
+                  limit={limit}
                 />
 
                 <div className="todo-footer-controls">
@@ -367,6 +385,11 @@ function TodoPage() {
                       <option value={10}>10 công việc</option>
                       <option value={20}>20 công việc</option>
                     </select>
+                    {totalTodos > 0 && (
+                      <span className="todo-showing-text">
+                        ({startTodoIndex} - {endTodoIndex} trong số {totalTodos} công việc)
+                      </span>
+                    )}
                   </div>
 
                   {totalPages > 1 && (

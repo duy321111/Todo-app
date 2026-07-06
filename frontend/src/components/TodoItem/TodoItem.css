@@ -1,10 +1,17 @@
 .todo-row {
   display: grid;
-  grid-template-columns: 1fr 96px 90px;
+  grid-template-columns: 46px 1fr 96px 90px;
   gap: 12px;
   align-items: center;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
+}
+
+.todo-stt {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: left;
 }
 
 .todo-text {
@@ -215,4 +222,9 @@
 
 .edit-action-btn.cancel-btn:hover {
   background: #cbd5e1;
+}
+
+.todo-row--updating {
+  pointer-events: none;
+  opacity: 0.6;
 }

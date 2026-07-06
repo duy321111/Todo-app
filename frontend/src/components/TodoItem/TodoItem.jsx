@@ -15,7 +15,7 @@ function formatDate(dateString) {
   return `${hours}:${minutes} - ${day}/${month}/${year}`;
 }
 
-function TodoItem({ todo, onUpdate, onDelete }) {
+function TodoItem({ todo, onUpdate, onDelete, isUpdating, stt }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
   const [editDescription, setEditDescription] = useState(todo.description || '');
@@ -101,7 +101,10 @@ function TodoItem({ todo, onUpdate, onDelete }) {
   }
 
   return (
-    <div className={`todo-row ${todo.completed ? 'completed' : ''}`}>
+    <div className={`todo-row ${todo.completed ? 'completed' : ''} ${isUpdating ? 'todo-row--updating' : ''}`}>
+      <div className="todo-stt">
+        {stt}
+      </div>
       <div className="todo-text">
         <span className="todo-text__title">{todo.title}</span>
         {todo.description && (
@@ -120,6 +123,7 @@ function TodoItem({ todo, onUpdate, onDelete }) {
         className={`todo-status-btn ${todo.completed ? 'completed' : ''}`}
         onClick={() => onUpdate(todo._id, { completed: !todo.completed })}
         title={todo.completed ? "Đánh dấu chưa hoàn thành" : "Đánh dấu hoàn thành"}
+        disabled={isUpdating}
       >
         <span>
           {todo.completed ? '✓ Đã xong' : '○ Chưa xong'}
@@ -132,6 +136,7 @@ function TodoItem({ todo, onUpdate, onDelete }) {
           className="edit-btn"
           onClick={() => setIsEditing(true)}
           aria-label={`Sửa ${todo.title}`}
+          disabled={isUpdating}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -153,6 +158,7 @@ function TodoItem({ todo, onUpdate, onDelete }) {
           className="delete-btn"
           onClick={() => onDelete(todo._id)}
           aria-label={`Xóa ${todo.title}`}
+          disabled={isUpdating}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
