@@ -109,3 +109,31 @@ Todo_List/
    npm run dev
    ```
 4. Truy cập liên kết [http://localhost:5173](http://localhost:5173) trên trình duyệt để trải nghiệm toàn bộ ứng dụng!
+
+---
+
+## 🐳 Hướng dẫn chạy bằng Docker (Docker Compose)
+
+Dự án đã được cấu hình sẵn Docker để chạy đồng thời cả Frontend, Backend và Database MongoDB.
+
+### Yêu cầu
+- Đã cài đặt và mở **Docker Desktop** trên máy.
+
+### Các bước khởi chạy:
+1. Mở terminal tại thư mục gốc của dự án và chạy:
+   ```bash
+   docker-compose up --build -d
+   ```
+2. Truy cập ứng dụng qua các đường dẫn sau:
+   * **Frontend:** [http://localhost:3000](http://localhost:3000)
+   * **Backend API:** [http://localhost:5000/api/todos](http://localhost:5000/api/todos)
+
+### Dừng chạy:
+```bash
+docker-compose down
+```
+
+### Minh họa trạng thái hoạt động:
+![Docker Compose Running](./docker_running.png)
+
+
