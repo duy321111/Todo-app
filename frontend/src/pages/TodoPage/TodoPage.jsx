@@ -116,11 +116,23 @@ function TodoPage() {
   const handleUpdate = async (id, updatedFields) => {
     const originalTodo = todos.find((t) => t._id === id);
     if (!originalTodo) return;
+    const backupIndex = todos.findIndex((t) => t._id === id);
 
     // Cập nhật giao diện ngay lập tức (Optimistic Update)
-    setTodos((prevTodos) =>
-      prevTodos.map((t) => (t._id === id ? { ...t, ...updatedFields } : t))
-    );
+    let isRemoved = false;
+    if (statusFilter === 'active' && updatedFields.completed === true) {
+      isRemoved = true;
+    } else if (statusFilter === 'completed' && updatedFields.completed === false) {
+      isRemoved = true;
+    }
+
+    if (isRemoved) {
+      setTodos((prevTodos) => prevTodos.filter((t) => t._id !== id));
+    } else {
+      setTodos((prevTodos) =>
+        prevTodos.map((t) => (t._id === id ? { ...t, ...updatedFields } : t))
+      );
+    }
 
     try {
       const merged = {
@@ -139,9 +151,17 @@ function TodoPage() {
       await fetchTodos();
     } catch (err) {
       // Hoàn tác (rollback) nếu API gặp lỗi
-      setTodos((prevTodos) =>
-        prevTodos.map((t) => (t._id === id ? originalTodo : t))
-      );
+      if (isRemoved) {
+        setTodos((prevTodos) => {
+          const list = [...prevTodos];
+          list.splice(backupIndex, 0, originalTodo);
+          return list;
+        });
+      } else {
+        setTodos((prevTodos) =>
+          prevTodos.map((t) => (t._id === id ? originalTodo : t))
+        );
+      }
       setError('Không thể cập nhật công việc.');
       console.error(err);
     }
