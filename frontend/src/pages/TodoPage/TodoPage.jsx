@@ -147,9 +147,6 @@ function TodoPage() {
         description: merged.description,
         completed: merged.completed,
       });
-
-      // Fetch lại để đồng bộ số lượng trang và phần tử từ DB
-      await fetchTodos();
     } catch (err) {
       // Hoàn tác (rollback) nếu API gặp lỗi
       if (isRemoved) {
@@ -167,7 +164,15 @@ function TodoPage() {
       console.error(err);
     } finally {
       // Mở khóa sau khi hoàn tất
-      setUpdatingIds((prev) => prev.filter((uid) => uid !== id));
+      setUpdatingIds((prev) => {
+        const nextUpdating = prev.filter((uid) => uid !== id);
+        // Chỉ gọi fetchTodos để đồng bộ lại dữ liệu khi tất cả các tác vụ chạy ngầm đã hoàn tất
+        // Việc này ngăn chặn Race Condition (các request đè lên nhau làm giật cục giao diện)
+        if (nextUpdating.length === 0) {
+          setTimeout(() => fetchTodos(), 0);
+        }
+        return nextUpdating;
+      });
     }
   };
 
@@ -179,15 +184,18 @@ function TodoPage() {
 
     try {
       await api.delete(`/todos/${id}`);
-
-      // Fetch lại để cập nhật danh sách và phân trang mới một cách mượt mà
-      await fetchTodos();
     } catch (err) {
       setError('Không thể xóa công việc.');
       console.error(err);
     } finally {
-      // Mở khóa sau khi hoàn tất
-      setUpdatingIds((prev) => prev.filter((uid) => uid !== id));
+      // Mở khóa và tải lại danh sách nếu là tác vụ cuối cùng hoàn tất
+      setUpdatingIds((prev) => {
+        const nextUpdating = prev.filter((uid) => uid !== id);
+        if (nextUpdating.length === 0) {
+          setTimeout(() => fetchTodos(), 0);
+        }
+        return nextUpdating;
+      });
     }
   };
 
