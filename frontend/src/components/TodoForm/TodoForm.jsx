@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './TodoForm.css';
 
 function TodoForm({ 
@@ -10,21 +11,34 @@ function TodoForm({
   isTitleTooLong, 
   isDescTooLong 
 }) {
+  const [isTouched, setIsTouched] = useState(false);
+
+  const handleSubmit = (event) => {
+    onSubmit(event);
+    setIsTouched(false);
+  };
+
   return (
-    <form className="todo-form" onSubmit={onSubmit}>
+    <form className="todo-form" onSubmit={handleSubmit}>
       <div className="todo-form__inputs">
         <div className="todo-input-group">
           <input
             type="text"
-            className={`todo-form__input todo-form__input--title ${isTitleTooLong ? 'input-error' : ''}`}
+            className={`todo-form__input todo-form__input--title ${(isTitleTooLong || (isTouched && !title.trim())) ? 'input-error' : ''}`}
             value={title}
-            onChange={(e) => onTitleChange(e.target.value)}
+            onChange={(e) => {
+              onTitleChange(e.target.value);
+              setIsTouched(true);
+            }}
+            onBlur={() => setIsTouched(true)}
             placeholder="Nhập tiêu đề công việc..."
             required
           />
           <div className="todo-input-helper">
             {isTitleTooLong ? (
               <span className="todo-error-hint">Tiêu đề không được vượt quá 100 ký tự</span>
+            ) : (isTouched && !title.trim()) ? (
+              <span className="todo-error-hint">Vui lòng nhập tiêu đề công việc</span>
             ) : (
               <span />
             )}
